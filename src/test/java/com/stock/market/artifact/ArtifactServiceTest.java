@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,8 +30,28 @@ class ArtifactServiceTest {
     @InjectMocks
     ArtifactService artifactService;
 
+    List<Artifact> artifacts;
+
     @BeforeEach
     void setUp() {
+        Artifact a1 = new Artifact();
+        a1.setId("1234");
+        a1.setName("Himanshu");
+        a1.setDescription("This is my artifact");
+        a1.setImageUrl("ImageUrl");
+
+
+        Artifact a2 = new Artifact();
+        a2.setId("12345");
+        a2.setName("Mohit");
+        a2.setDescription("This is my artifact");
+        a2.setImageUrl("ImageUrl");
+
+        this.artifacts = new ArrayList<>();
+        this.artifacts.add(a1);
+        this.artifacts.add(a2);
+
+
     }
 
     @AfterEach
@@ -61,7 +83,7 @@ class ArtifactServiceTest {
         assertThat(returnArtifacts.getImageUrl()).isEqualTo(a.getImageUrl());
 
         // Then. Assert expected outcomes.
-        verify(artifactRepository,times(1)).findById("1234567845678");
+        verify(artifactRepository, times(1)).findById("1234567845678");
 
 
     }
@@ -72,14 +94,28 @@ class ArtifactServiceTest {
         given(artifactRepository.findById(Mockito.anyString())).willReturn(Optional.empty());
 
         // When
-        Throwable thrown = catchThrowable( ()-> {
+        Throwable thrown = catchThrowable(() -> {
             Artifact returnArtifact = artifactService.findById("7894567898790");
         });
 
         // Then
         assertThat(thrown).isInstanceOf(ArtifactNotFoundException.class)
-                .hasMessage("Could not find artifact with id 7894567898790 :(" );
+                .hasMessage("Could not find artifact with id 7894567898790 :(");
 
-        verify(artifactRepository,times(1)).findById("7894567898790");
+        verify(artifactRepository, times(1)).findById("7894567898790");
+    }
+
+    @Test
+    void testFindAllSuccess() {
+        // Given.
+        given(artifactRepository.findAll()).willReturn(artifacts);
+
+        // When.
+        List<Artifact> actualArtifacts = artifactService.findAll();
+
+        assertThat(actualArtifacts.size() == this.artifacts.size());
+        verify(artifactRepository,times(1)).findAll();
+
+        // Then.
     }
 }
