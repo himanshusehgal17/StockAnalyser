@@ -3,7 +3,8 @@ package com.stock.market.utils;
 public enum StatusCode {
     SUCCESS(200, "Success"),
     NOT_FOUND(404, "Not Found"),
-    SERVER_EXCEPTION(500, "Internal Server Error");
+    APPLICATION_EXCEPTION(500, "Internal Server Error"),
+    BUSINESS_EXCEPTION(999, "Business Validation Failed");
 
     private final int code;
     private final String description;
