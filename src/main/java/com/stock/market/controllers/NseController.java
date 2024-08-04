@@ -35,11 +35,11 @@ public class NseController {
                 .map(OptionData::getPeOpenInterest)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalChangeCeOpenInterest = list.stream()
-                .map(OptionData::getCeOpenInterest)
+                .map(OptionData::getCeChangeinOpenInterest)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalChangePeOpenInterest = list.stream()
-                .map(OptionData::getPeOpenInterest)
+                .map(OptionData::getPeChangeinOpenInterest)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal pcr = totalPeOpenInterest.divide(totalCeOpenInterest,4 ,RoundingMode.HALF_UP);
