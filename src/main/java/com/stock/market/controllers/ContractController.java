@@ -1,6 +1,6 @@
 package com.stock.market.controllers;
 
-import com.stock.market.models.Contract;
+import com.stock.market.entities.Contract;
 import com.stock.market.services.ContractService;
 import com.stock.market.utils.Result;
 import com.stock.market.utils.StatusCode;

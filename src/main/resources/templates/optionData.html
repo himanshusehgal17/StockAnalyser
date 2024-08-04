@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Option Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1>Option Data | PCR: <span th:text="${pcr}"></span>  | Change In PCR: <span th:text="${changeInPcr}"></span></h1>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>PE OI</th>
+            <th>PE COI</th>
+            <th>Strike Price</th>
+            <th>CE OI</th>
+            <th>CE COI</th>
+            <th>PCR</th>
+            <th>Change In PCR</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="option : ${optionDataList}">
+            <td th:text="${option.peOpenInterest}"></td>
+            <td th:text="${option.peChangeinOpenInterest}"></td>
+            <td th:text="${option.strikePrice}"></td>
+            <td th:text="${option.ceOpenInterest}"></td>
+            <td th:text="${option.ceChangeinOpenInterest}"></td>
+            <td th:text="${option.pcr}"></td>
+            <td th:text="${option.changeInPCR}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

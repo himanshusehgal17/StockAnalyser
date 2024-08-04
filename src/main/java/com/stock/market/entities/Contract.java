@@ -1,4 +1,4 @@
-package com.stock.market.models;
+package com.stock.market.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;

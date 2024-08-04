@@ -1,6 +1,6 @@
 package com.stock.market.repositories;
 
-import com.stock.market.models.Contract;
+import com.stock.market.entities.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

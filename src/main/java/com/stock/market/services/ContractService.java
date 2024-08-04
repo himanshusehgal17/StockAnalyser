@@ -1,6 +1,6 @@
 package com.stock.market.services;
 
-import com.stock.market.models.Contract;
+import com.stock.market.entities.Contract;
 import com.stock.market.repositories.ContractRepository;
 import com.stock.market.utils.exceptions.ApplicationException;
 import com.stock.market.utils.exceptions.BusinessException;
