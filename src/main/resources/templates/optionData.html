@@ -4,12 +4,66 @@
     <meta charset="UTF-8">
     <title>Option Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <meta http-equiv="refresh" content="2">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function refreshData() {
+            $.ajax({
+                url: '/option-chain-data',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    $('#pcr').text(response.pcr);
+                    $('#changeInPcr').text(response.changeInPcr);
+                    $('#spotPrice').text(response.spotPrice);
+                    $('#variation').text(response.variation);
+
+                    // Update last sync time
+                    $('#lastSyncTime').text('Last Sync: ' + response.lastSyncTime);
+
+                    let tableBody = $('#optionDataTableBody');
+                    tableBody.empty(); // Clear existing rows
+
+                    response.optionDataList.forEach(option => {
+                        tableBody.append(
+                            `<tr>
+                                <td>${option.ceOpenInterest}</td>
+                                <td>${option.ceChangeinOpenInterest}</td>
+                                <td>${option.strikePrice}</td>
+                                <td>${option.peChangeinOpenInterest}</td>
+                                <td>${option.peOpenInterest}</td>
+                                <td>${option.pcr}</td>
+                                <td>${option.changeInPCR}</td>
+                            </tr>`
+                        );
+                    });
+                },
+                error: function(error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            refreshData(); // Initial load
+            setInterval(refreshData, 2000); // Refresh data every 2 seconds
+        });
+    </script>
+    <style>
+        #lastSync {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-4">
-    <h1>PCR: <span th:text="${pcr}"></span>  | Change In PCR: <span th:text="${changeInPcr}"></span></h1>
-    <h4><span th:text="${spotPrice}"></span> | <span th:text="${variation}"></span></h4>
+    <div id="lastSync"> <span id="lastSyncTime"></span> </div>
+    <h1>PCR: <span id="pcr"></span> | Change In PCR: <span id="changeInPcr"></span></h1>
+    <h4><span id="spotPrice"></span> | <span id="variation"></span></h4>
+    <a href="http://localhost:8080/chart">PCR Graph</a>
     <table class="table table-bordered">
         <thead>
         <tr>
@@ -22,16 +76,8 @@
             <th>Change In PCR</th>
         </tr>
         </thead>
-        <tbody>
-        <tr th:each="option : ${optionDataList}">
-            <td th:text="${option.ceOpenInterest}"></td>
-            <td th:text="${option.ceChangeinOpenInterest}"></td>
-            <td th:text="${option.strikePrice}"></td>
-            <td th:text="${option.peChangeinOpenInterest}"></td>
-            <td th:text="${option.peOpenInterest}"></td>
-            <td th:text="${option.pcr}"></td>
-            <td th:text="${option.changeInPCR}"></td>
-        </tr>
+        <tbody id="optionDataTableBody">
+        <!-- Rows will be injected here by JavaScript -->
         </tbody>
     </table>
 </div>
