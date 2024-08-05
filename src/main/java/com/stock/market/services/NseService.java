@@ -1,6 +1,7 @@
 package com.stock.market.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.stock.market.dto.ModelDataDTO;
 import com.stock.market.models.IndicativeNifty50DTO;
 import com.stock.market.models.NseResponse;
 import com.stock.market.entities.OptionData;
@@ -12,6 +13,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,11 +52,13 @@ public class NseService {
                 .retrieve()
                 .bodyToMono(JsonNode.class)
                 .map(jsonNode -> {
-                    JsonNode indicativeNifty50 = jsonNode.get("indicativenifty50");
-                    if (indicativeNifty50 != null) {
+                    JsonNode marketState = jsonNode.get("marketState");
+                    if (marketState != null) {
                         IndicativeNifty50DTO dto = new IndicativeNifty50DTO();
-                        dto.setDateTime(DateTimeUtils.parseDateTime(indicativeNifty50.get("dateTime").asText()));
-                        dto.setIndexName(indicativeNifty50.get("indexName").asText());
+                        dto.setDateTime(DateTimeUtils.parseDateTime(marketState.get(0).get("tradeDate").asText()));
+                        dto.setIndexName(marketState.get(0).get("index").asText());
+                        dto.setSpotPrice(new BigDecimal(marketState.get(0).get("last").asText()).setScale(4, RoundingMode.HALF_UP));
+                        dto.setVariation(new BigDecimal(marketState.get(0).get("variation").asText()).setScale(4, RoundingMode.HALF_UP));
                         return dto;
                     }
                     return null;
@@ -68,9 +73,13 @@ public class NseService {
         optionDataRepository.save(optionData);
     }
 
-    public List<OptionData> latestOptionData() {
+    public ModelDataDTO latestOptionData() {
         IndicativeNifty50DTO indicativeNifty50DTO = getMarketStatus().block();
         if(indicativeNifty50DTO == null) return null;
-        return optionDataRepository.findByCreatedOnAndSortByStrikePriceAsc(indicativeNifty50DTO.getDateTime());
+        List<OptionData> list = optionDataRepository.findByCreatedOnAndSortByStrikePriceAsc(indicativeNifty50DTO.getDateTime());
+        ModelDataDTO modelDataDTO = new ModelDataDTO();
+        modelDataDTO.setList(list);
+        modelDataDTO.setIndicativeNifty50DTO(indicativeNifty50DTO);
+        return modelDataDTO;
     }
 }

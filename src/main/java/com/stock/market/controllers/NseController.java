@@ -1,7 +1,9 @@
 package com.stock.market.controllers;
 
+import com.stock.market.dto.ModelDataDTO;
 import com.stock.market.dto.OptionDataDTO;
 import com.stock.market.entities.OptionData;
+import com.stock.market.models.IndicativeNifty50DTO;
 import com.stock.market.models.NseResponse;
 import com.stock.market.services.NseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,10 @@ public class NseController {
     private NseService nseService;
 
     @GetMapping("/option-chain")
-    public ModelAndView getOptionChain(Model model) {
-        List<OptionData> list = nseService.latestOptionData();
+    public ModelAndView getOptionChain() {
+        ModelDataDTO modelDataDTO = nseService.latestOptionData();
+        List<OptionData> list = modelDataDTO.getList();
+        IndicativeNifty50DTO indicativeNifty50DTO = modelDataDTO.getIndicativeNifty50DTO();
         // Calculate the total sums
         BigDecimal totalCeOpenInterest = list.stream()
                 .map(OptionData::getCeOpenInterest)
@@ -42,8 +46,8 @@ public class NseController {
                 .map(OptionData::getPeChangeinOpenInterest)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal pcr = totalPeOpenInterest.divide(totalCeOpenInterest,4 ,RoundingMode.HALF_UP);
-        BigDecimal changeInPcr = totalChangePeOpenInterest.divide(totalChangeCeOpenInterest,4 ,RoundingMode.HALF_UP);
+        BigDecimal pcr =  totalCeOpenInterest.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : totalPeOpenInterest.divide(totalCeOpenInterest,4 ,RoundingMode.HALF_UP);
+        BigDecimal changeInPcr = totalChangeCeOpenInterest.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : totalChangePeOpenInterest.divide(totalChangeCeOpenInterest,4 ,RoundingMode.HALF_UP);
 
         List<OptionDataDTO> updatedList = list.stream()
                 .map(optionData -> OptionDataDTO.builder()
@@ -61,6 +65,8 @@ public class NseController {
         modelAndView.addObject("optionDataList", updatedList);
         modelAndView.addObject("pcr", pcr);
         modelAndView.addObject("changeInPcr", changeInPcr);
+        modelAndView.addObject("spotPrice", indicativeNifty50DTO.getSpotPrice());
+        modelAndView.addObject("variation", indicativeNifty50DTO.getVariation());
         return modelAndView;
     }
 
