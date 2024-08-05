@@ -2,6 +2,7 @@ package com.stock.market.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.stock.market.dto.ModelDataDTO;
+import com.stock.market.dto.OptionDetailDTO;
 import com.stock.market.models.IndicativeNifty50DTO;
 import com.stock.market.models.NseResponse;
 import com.stock.market.entities.OptionData;
@@ -15,7 +16,11 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -75,11 +80,15 @@ public class NseService {
 
     public ModelDataDTO latestOptionData() {
         IndicativeNifty50DTO indicativeNifty50DTO = getMarketStatus().block();
-        if(indicativeNifty50DTO == null) return null;
+        if (indicativeNifty50DTO == null) return null;
         List<OptionData> list = optionDataRepository.findByCreatedOnAndSortByStrikePriceAsc(indicativeNifty50DTO.getDateTime());
         ModelDataDTO modelDataDTO = new ModelDataDTO();
         modelDataDTO.setList(list);
         modelDataDTO.setIndicativeNifty50DTO(indicativeNifty50DTO);
         return modelDataDTO;
+    }
+
+    public List<Object[]> getOptionDetails(Date startDate,int interval) {
+        return optionDataRepository.findByCreatedOnBetweenWithInterval(startDate,interval);
     }
 }
