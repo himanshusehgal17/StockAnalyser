@@ -6,11 +6,26 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Static list of options
+        const optionsList = ["NIFTY","AARTIIND","ABB","ABBOTINDIA","ABCAPITAL","ABFRL","ACC","ADANIENT","ADANIPORTS","ALKEM","AMBUJACEM","APOLLOHOSP","APOLLOTYRE","ASHOKLEY","ASIANPAINT","ASTRAL","ATUL","AUBANK","AUROPHARMA","AXISBANK","BAJAJ-AUTO","BAJAJFINSV","BAJFINANCE","BALKRISIND","BALRAMCHIN","BANDHANBNK","BANKBARODA","BATAINDIA","BEL","BERGEPAINT","BHARATFORG","BHARTIARTL","BHEL","BIOCON","BOSCHLTD","BPCL","BRITANNIA","BSOFT","CANBK","CANFINHOME","CHAMBLFERT","CHOLAFIN","CIPLA","COALINDIA","COFORGE","COLPAL","CONCOR","COROMANDEL","CROMPTON","CUB","CUMMINSIND","DABUR","DALBHARAT","DEEPAKNTR","DIVISLAB","DIXON","DLF","DRREDDY","EICHERMOT","ESCORTS","EXIDEIND","FEDERALBNK","GAIL","GLENMARK","GMRINFRA","GNFC","GODREJCP","GODREJPROP","GRANULES","GRASIM","GUJGASLTD","HAL","HAVELLS","HCLTECH","HDFCAMC","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDCOPPER","HINDPETRO","HINDUNILVR","ICICIBANK","ICICIGI","ICICIPRULI","IDEA","IDFC","IDFCFIRSTB","IEX","IGL","INDHOTEL","INDIACEM","INDIAMART","INDIGO","INDUSINDBK","INDUSTOWER","INFY","IOC","IPCALAB","IRCTC","ITC","JINDALSTEL","JKCEMENT","JSWSTEEL","JUBLFOOD","KOTAKBANK","LALPATHLAB","LAURUSLABS","LICHSGFIN","LT","LTF","LTIM","LTTS","LUPIN","M&M","M&MFIN","MANAPPURAM","MARICO","MARUTI","MCX","METROPOLIS","MFSL","MGL","MOTHERSON","MPHASIS","MRF","MUTHOOTFIN","NATIONALUM","NAUKRI","NAVINFLUOR","NESTLEIND","NMDC","NTPC","OBEROIRLTY","OFSS","ONGC","PAGEIND","PEL","PERSISTENT","PETRONET","PFC","PIDILITIND","PIIND","PNB","POLYCAB","POWERGRID","PVRINOX","RAMCOCEM","RBLBANK","RECLTD","RELIANCE","SAIL","SBICARD","SBILIFE","SBIN","SHREECEM","SHRIRAMFIN","SIEMENS","SRF","SUNPHARMA","SUNTV","SYNGENE","TATACHEM","TATACOMM","TATACONSUM","TATAMOTORS","TATAPOWER","TATASTEEL","TCS","TECHM","TITAN","TORNTPHARM","TRENT","TVSMOTOR","UBL","ULTRACEMCO","UNITDSPR","UPL","VEDL","VOLTAS","WIPRO","ZYDUSLIFE"];
+
+        function populateDropdown() {
+            const dropdown = $('#dropdown');
+            dropdown.empty(); // Clear existing options
+
+            optionsList.forEach(item => {
+                dropdown.append(`<option value="${item}">${item}</option>`);
+            });
+        }
+
         function refreshData() {
+            const selectedValue = $('#dropdown').val();
+
             $.ajax({
                 url: '/option-chain-data',
                 method: 'GET',
                 dataType: 'json',
+                data: { indexName: selectedValue },
                 success: function(response) {
                     $('#pcr').text(response.pcr);
                     $('#changeInPcr').text(response.changeInPcr);
@@ -44,6 +59,8 @@
         }
 
         $(document).ready(function() {
+            populateDropdown(); // Populate dropdown on page load
+            $('#dropdown').change(refreshData); // Refresh data on dropdown change
             refreshData(); // Initial load
             setInterval(refreshData, 2000); // Refresh data every 2 seconds
         });
@@ -64,6 +81,15 @@
     <h1>PCR: <span id="pcr"></span> | Change In PCR: <span id="changeInPcr"></span></h1>
     <h4><span id="spotPrice"></span> | <span id="variation"></span></h4>
     <a href="http://localhost:8080/chart">PCR Graph</a>
+
+    <!-- Dropdown List -->
+    <div class="form-group">
+        <label for="dropdown">Select Option:</label>
+        <select id="dropdown" class="form-control">
+            <!-- Options will be populated here by JavaScript -->
+        </select>
+    </div>
+
     <table class="table table-bordered">
         <thead>
         <tr>

@@ -12,15 +12,18 @@
         var chart; // Global variable for the chart
 
         function drawChart() {
-
-
             // Fetch initial data
             fetchChartData(new google.visualization.DataTable());
         }
 
         function fetchChartData(data) {
+            const date = $('#date').val();
+            const interval = $('#interval').val();
+
+            const url = `/chart-data?date=${encodeURIComponent(date)}&interval=${encodeURIComponent(interval)}`;
+
             $.ajax({
-                url: '/chart-data', // Endpoint to fetch chart data
+                url: url, // Endpoint to fetch chart data
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -54,13 +57,24 @@
         }
 
         $(document).ready(function() {
-            setInterval(function() {
+            $('#refreshButton').click(function() {
                 fetchChartData(new google.visualization.DataTable()); // Fetch new data and update the chart
-            }, 2000); // Refresh data every 20 seconds
+            });
         });
     </script>
 </head>
 <body>
+<div class="container mt-4">
+    <div class="form-group">
+        <label for="date">Date:</label>
+        <input type="date" id="date" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="interval">Interval:</label>
+        <input type="text" id="interval" class="form-control">
+    </div>
+    <button id="refreshButton" class="btn btn-primary">Refresh Data</button>
+</div>
 <div id="chatLine" style="height: 1000px"></div>
 <div id="lastSync" style="position: fixed; top: 10px; right: 10px; font-size: 14px; color: gray;">
     <span id="lastSyncTime"></span>

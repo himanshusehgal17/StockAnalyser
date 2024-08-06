@@ -41,8 +41,8 @@ public class NseController {
 
     @GetMapping("/option-chain-data")
     @ResponseBody
-    public ModelDataDTOV2 getOptionChainData() {
-        ModelDataDTO modelDataDTO = nseService.latestOptionData();
+    public ModelDataDTOV2 getOptionChainData(@RequestParam(value = "indexName", defaultValue = "NIFTY", required = false) String indexName ) {
+        ModelDataDTO modelDataDTO = nseService.latestOptionData(indexName);
         List<OptionData> list = modelDataDTO.getList();
         IndicativeNifty50DTO indicativeNifty50DTO = modelDataDTO.getIndicativeNifty50DTO();
 
@@ -108,19 +108,19 @@ public class NseController {
     }
 
     @GetMapping("chart-data")
-    public GraphPCRDTO getChartData() {
-        Date currentDate = new Date();
-        currentDate.setDate(currentDate.getDate() - 1);
-        int interval = 3;
-        List<Object[]> optionDetails = nseService.getOptionDetails(currentDate, interval);
-        List<Object[]> chartData =  optionDetails.stream()
+    public GraphPCRDTO getChartData(
+            @RequestParam(value = "date", defaultValue = "#{T(java.time.LocalDate).now().toString()}") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date,
+            @RequestParam(value = "interval", defaultValue = "3") int interval) {
+
+        List<Object[]> optionDetails = nseService.getOptionDetails(date, interval);
+        List<Object[]> chartData = optionDetails.stream()
                 .map(objects -> {
                     objects[0] = ((String) objects[0]).split(" ")[1].substring(0, 5);
                     return objects;
                 })
                 .collect(Collectors.toList());
-        return new GraphPCRDTO("PCR & Change in PCR Graph",new Date().toString(),chartData);
 
-
+        return new GraphPCRDTO("PCR & Change in PCR Graph", new Date().toString(), chartData);
     }
+
 }

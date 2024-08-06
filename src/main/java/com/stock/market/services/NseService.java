@@ -32,9 +32,10 @@ public class NseService {
     @Autowired
     private OptionDataRepository optionDataRepository;
 
-    public Mono<NseResponse> getOptionChain() {
+    public Mono<NseResponse> getOptionChain(String indexName) {
+        indexName = indexName == null ? "NIFTY" : indexName;
         return webClient.get()
-                .uri("https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY")
+                .uri("https://www.nseindia.com/api/option-chain-indices?symbol=" + indexName)
                 .retrieve()
                 .bodyToMono(NseResponse.class)
                 .map(nseResponse -> {
@@ -78,12 +79,30 @@ public class NseService {
         optionDataRepository.save(optionData);
     }
 
-    public ModelDataDTO latestOptionData() {
+    public ModelDataDTO latestOptionData(String indexName) {
         IndicativeNifty50DTO indicativeNifty50DTO = getMarketStatus().block();
         if (indicativeNifty50DTO == null) return null;
-        List<OptionData> list = optionDataRepository.findByCreatedOnAndSortByStrikePriceAsc(indicativeNifty50DTO.getDateTime());
+        NseResponse nseResponse = getOptionChain(indexName).block();
+        while (nseResponse == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            nseResponse = getOptionChain(indexName).block();
+        }
+        List<NseResponse.OptionData>  list = nseResponse.getFiltered().getData();
+        List<OptionData> updatedList = list.stream()
+                .map( object -> new OptionData(null,
+                        indicativeNifty50DTO.getDateTime(),
+                        object.getStrikePrice(),
+                        object.getCE().getOpenInterest(),
+                        object.getCE().getChangeinOpenInterest(),
+                        object.getPE().getOpenInterest(),
+                        object.getPE().getChangeinOpenInterest()
+                )).toList();
         ModelDataDTO modelDataDTO = new ModelDataDTO();
-        modelDataDTO.setList(list);
+        modelDataDTO.setList(updatedList);
         modelDataDTO.setIndicativeNifty50DTO(indicativeNifty50DTO);
         return modelDataDTO;
     }

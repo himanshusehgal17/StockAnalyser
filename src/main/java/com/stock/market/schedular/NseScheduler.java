@@ -31,7 +31,7 @@ public class NseScheduler {
         if(marketStatus == null) return;
         if(cronExecutionService.getLastExecuted(marketStatus.getIndexName()) == null) {
             logCronExecutionTime(marketStatus.getIndexName(),marketStatus.getDateTime());
-            NseResponse nseResponse = nseService.getOptionChain().block();
+            NseResponse nseResponse = nseService.getOptionChain(null).block();
             if (nseResponse == null || nseResponse.getFiltered() == null) return;
             for (NseResponse.OptionData data : nseResponse.getFiltered().getData()) {
                 OptionData optionData = new OptionData();
@@ -46,7 +46,7 @@ public class NseScheduler {
         }
         else if(cronExecutionService.getLastExecuted(marketStatus.getIndexName()).isBefore(marketStatus.getDateTime())) {
             cronExecutionService.updateLastExecuted(marketStatus.getIndexName(),marketStatus.getDateTime());
-            NseResponse nseResponse = nseService.getOptionChain().block();
+            NseResponse nseResponse = nseService.getOptionChain(null).block();
             if (nseResponse == null || nseResponse.getFiltered() == null) return;
             for (NseResponse.OptionData data : nseResponse.getFiltered().getData()) {
                 OptionData optionData = new OptionData();

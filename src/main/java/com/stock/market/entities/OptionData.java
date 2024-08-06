@@ -1,7 +1,9 @@
 package com.stock.market.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "option_details")
+@AllArgsConstructor
+@NoArgsConstructor
 public class OptionData {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
