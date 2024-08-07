@@ -19,6 +19,7 @@
         function fetchChartData(data) {
             const date = $('#date').val();
             const interval = $('#interval').val();
+            const selectedOption = $('#dataType').val();
 
             const url = `/chart-data?date=${encodeURIComponent(date)}&interval=${encodeURIComponent(interval)}`;
 
@@ -30,11 +31,20 @@
                     console.log(response);
                     var data = new google.visualization.DataTable();
                     data.addColumn('string', 'Date');
-                    data.addColumn('number', 'PCR');
-                    data.addColumn('number', 'Change in PCR');
+
+                    if (selectedOption === 'PCR') {
+                        data.addColumn('number', 'PCR');
+                    } else {
+                        data.addColumn('number', 'Change in PCR');
+                    }
+
                     // Add new data
                     response.chartData.forEach(row => {
-                        data.addRow([row[0], row[1], row[2]]);
+                        if (selectedOption === 'PCR') {
+                            data.addRow([row[0], row[1]]);
+                        } else {
+                            data.addRow([row[0], row[2]]);
+                        }
                     });
 
                     var options = {
@@ -42,7 +52,7 @@
                     };
 
                     if (!chart) {
-                        chart = new google.visualization.LineChart(document.getElementById('chatLine'));
+                        chart = new google.visualization.LineChart(document.getElementById('chartLine'));
                     }
 
                     chart.draw(data, options);
@@ -58,8 +68,9 @@
 
         $(document).ready(function() {
             $('#refreshButton').click(function() {
-                fetchChartData(new google.visualization.DataTable()); // Fetch new data and update the chart
+                drawChart(); // Fetch new data and update the chart
             });
+            setInterval(drawChart, 2000);
         });
     </script>
 </head>
@@ -73,9 +84,16 @@
         <label for="interval">Interval:</label>
         <input type="text" id="interval" class="form-control">
     </div>
+    <div class="form-group">
+        <label for="dataType">Data Type:</label>
+        <select id="dataType" class="form-control">
+            <option value="PCR">PCR</option>
+            <option value="changeInPCR">Change in PCR</option>
+        </select>
+    </div>
     <button id="refreshButton" class="btn btn-primary">Refresh Data</button>
 </div>
-<div id="chatLine" style="height: 1000px"></div>
+<div id="chartLine" style="height: 1000px"></div>
 <div id="lastSync" style="position: fixed; top: 10px; right: 10px; font-size: 14px; color: gray;">
     <span id="lastSyncTime"></span>
 </div>
