@@ -1,4 +1,4 @@
-name: Deploy Spring Boot App
+name: Build and Deploy Spring Boot App with MySQL
 
 on:
   push:
@@ -8,11 +8,38 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: Himanshu@1
+          MYSQL_DATABASE: STOCK_ANALYSER
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up JDK 21
         uses: actions/setup-java@v2
         with:
           java-version: '21'
+
       - name: Build with Maven
         run: mvn clean install
+
+      - name: Run Tests
+        run: mvn test
+
+      - name: Start Application
+        run: java -jar target/market-0.0.1-SNAPSHOT.jar
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/STOCK_ANALYSER
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: Himanshu@1
