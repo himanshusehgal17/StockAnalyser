@@ -96,10 +96,10 @@ public class NseService {
                 .map( object -> new OptionData(null,
                         indicativeNifty50DTO.getDateTime(),
                         object.getStrikePrice(),
-                        object.getCE().getOpenInterest(),
-                        object.getCE().getChangeinOpenInterest(),
-                        object.getPE().getOpenInterest(),
-                        object.getPE().getChangeinOpenInterest()
+                        object.getCE() != null ? object.getCE().getOpenInterest() : null,
+                        object.getCE() != null ? object.getCE().getChangeinOpenInterest() :  null,
+                        object.getPE() !=null ? object.getPE().getOpenInterest() : null,
+                        object.getPE() !=null? object.getPE().getChangeinOpenInterest() : null
                 )).toList();
         ModelDataDTO modelDataDTO = new ModelDataDTO();
         modelDataDTO.setList(updatedList);
