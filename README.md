@@ -1,1 +1,3 @@
 # StockAnalyser
+
+Jenkins implemented
